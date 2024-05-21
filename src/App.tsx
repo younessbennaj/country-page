@@ -42,7 +42,7 @@ const columns = [
     cell: (info) => info.getValue(),
     id: "area",
     footer: (info) => info.column.id,
-    header: () => <span>Area</span>,
+    header: () => <span>Area (km²)</span>,
   }),
   columnHelper.accessor("region", {
     cell: (info) => info.getValue(),
@@ -91,6 +91,7 @@ function App() {
 
   return (
     <div>
+      <h2 className="subtitle">Found {countries.length} countries</h2>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

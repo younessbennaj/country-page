@@ -1,22 +1,28 @@
 :root {
+  --light-grey: #6c727f;
+
+  --dark: #282b30;
+
+  --black: #1b1d1f;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--black);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  --light-grey: #6c727f;
 }
+
 table {
   table-layout: auto;
   width: 100%;
+  border-collapse: collapse;
 }
 
 td {
@@ -28,10 +34,20 @@ th {
   text-align: left;
   font-size: 12px;
   color: var(--light-grey);
+  padding: 16px 0px;
+}
+
+thead {
+  border-bottom: 1px solid var(--dark);
 }
 
 img {
   width: 50px;
   height: 38px;
   border-radius: 4px;
+}
+
+.subtitle {
+  color: var(--light-grey);
+  font-size: 16px;
 }

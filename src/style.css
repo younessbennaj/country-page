@@ -1,5 +1,7 @@
 :root {
+  --blue-grey: #d2d5da;
   --light-grey: #6c727f;
+  --blue: #93c5fd;
 
   --dark: #282b30;
 
@@ -87,4 +89,42 @@ img {
   width: 1rem;
   height: 1rem;
   fill: rgba(255, 255, 255, 0.6);
+}
+
+.filter-label {
+  font-size: 14px;
+  color: var(--light-grey);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.checkbox {
+  height: 0;
+  width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: var(--light-grey);
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.checkbox:focus-within + .checkbox-label {
+  outline: 2px solid var(--blue);
+}
+
+.checkbox:checked + .checkbox-label {
+  background-color: var(--dark);
+  color: var(--blue-grey);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }

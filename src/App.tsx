@@ -4,15 +4,15 @@ import {
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
-  SortingState,
   getFilteredRowModel,
   FilterFn,
-  ColumnFiltersState,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useEffect, useMemo, useState } from "react";
-import { Country, SortBy } from "./types";
-import Select from "./components/Select";
+import { useEffect, useState } from "react";
+import { Country, RestCountry } from "./types";
+import useFilters from "./useFilters";
+import RegionFilter from "./components/RegionFilter";
+import SortSelect from "./components/SortSelect";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
@@ -58,71 +58,11 @@ const columns = [
   }),
 ];
 
-const checkboxOptions = [
-  {
-    id: "americas",
-    label: "Americas",
-    value: "americas",
-  },
-  {
-    id: "antartics",
-    label: "Antartics",
-    value: "antartics",
-  },
-  {
-    id: "africa",
-    label: "Africa",
-    value: "africa",
-  },
-  {
-    id: "asia",
-    label: "Asia",
-    value: "asia",
-  },
-  {
-    id: "europe",
-    label: "Europe",
-    value: "europe",
-  },
-  {
-    id: "oceania",
-    label: "Oceania",
-    value: "oceania",
-  },
-];
-
-type Region =
-  | "americas"
-  | "antartics"
-  | "africa"
-  | "asia"
-  | "europe"
-  | "oceania";
-
 function App() {
-  console.log("app rendered");
-
   const [countries, setCountries] = useState<Country[]>([]);
 
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      desc: true,
-      id: "population",
-    },
-  ]);
-
-  const [regions, setRegions] = useState<Region[]>([]);
-
-  const columnFilters = useMemo(
-    () =>
-      [
-        {
-          id: "region",
-          value: regions,
-        },
-      ] as ColumnFiltersState,
-    [regions]
-  );
+  const { columnFilters, sorting, regions, setRegions, setSorting } =
+    useFilters();
 
   const table = useReactTable({
     data: countries,
@@ -144,37 +84,18 @@ function App() {
     },
   });
 
-  function handleSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const value = e.target.value as SortBy;
-    const newSorting = [
-      {
-        desc: value === "name" ? false : true,
-        id: value,
-      },
-    ];
-    setSorting(newSorting);
-  }
-
   useEffect(() => {
     async function fetchCountries() {
       const { data } = await axios.get("https://restcountries.com/v3.1/all");
-      const countries = data.map(
-        (item: {
-          area: number;
-          flags: { png: string };
-          name: { common: string };
-          population: number;
-          region: string;
-        }) => {
-          return {
-            area: item.area,
-            flag: item.flags.png,
-            name: item.name.common,
-            population: item.population,
-            region: item.region,
-          };
-        }
-      );
+      const countries = data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+        };
+      });
       setCountries(countries);
     }
 
@@ -183,42 +104,17 @@ function App() {
 
   return (
     <div>
-      <div>
-        <div role="group" aria-labelledby="region-heading">
-          <h3 id="region-heading">Region</h3>
-          {checkboxOptions.map((option) => (
-            <div key={option.id}>
-              <input
-                checked={regions.includes(option.value as Region)}
-                type="checkbox"
-                name="region"
-                id={option.id}
-                value={option.value}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const value = e.target.value as Region;
-
-                  if (e.target.checked) {
-                    setRegions([...regions, value]);
-                  } else {
-                    setRegions(regions.filter((region) => region !== value));
-                  }
-                }}
-              />
-              <label htmlFor={option.id}>{option.label}</label>
-            </div>
-          ))}
+      <div className="filters">
+        <div>
+          <RegionFilter regions={regions} setRegions={setRegions} />
         </div>
-      </div>
-      <div
-        style={{
-          width: "50%",
-        }}
-      >
-        <Select onChange={handleSelectChange}>
-          <option value="population">Population</option>
-          <option value="name">Name</option>
-          <option value="area">Area</option>
-        </Select>
+        <div
+          style={{
+            width: "50%",
+          }}
+        >
+          <SortSelect setSorting={setSorting} />
+        </div>
       </div>
       <h2 className="subtitle">Found {countries.length} countries</h2>
       <table>

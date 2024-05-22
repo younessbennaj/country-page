@@ -3,17 +3,13 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getSortedRowModel,
+  SortingState,
 } from "@tanstack/react-table";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-type Country = {
-  flag: string;
-  name: string;
-  population: number;
-  area: number;
-  region: string;
-};
+import { Country, SortBy } from "./types";
+import Select from "./components/Select";
 
 const columnHelper = createColumnHelper<Country>();
 
@@ -53,36 +49,58 @@ const columns = [
 ];
 
 function App() {
-  /**
-   - flag
-   - name
-   - population
-   - area
-   - region
-  */
+  console.log("app rendered");
+
   const [countries, setCountries] = useState<Country[]>([]);
 
-  // const table = useReactTable()
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      desc: true,
+      id: "population",
+    },
+  ]);
 
   const table = useReactTable({
     data: countries,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
   });
+
+  function handleSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const value = e.target.value as SortBy;
+    const newSorting = [
+      {
+        desc: value === "name" ? false : true,
+        id: value,
+      },
+    ];
+    setSorting(newSorting);
+  }
 
   useEffect(() => {
     async function fetchCountries() {
       const { data } = await axios.get("https://restcountries.com/v3.1/all");
-      console.log(data);
-      const countries = data.map((item: any) => {
-        return {
-          area: item.area,
-          flag: item.flags.png,
-          name: item.name.common,
-          population: item.population,
-          region: item.region,
-        };
-      });
+      const countries = data.map(
+        (item: {
+          area: number;
+          flags: { png: string };
+          name: { common: string };
+          population: number;
+          region: string;
+        }) => {
+          return {
+            area: item.area,
+            flag: item.flags.png,
+            name: item.name.common,
+            population: item.population,
+            region: item.region,
+          };
+        }
+      );
       setCountries(countries);
     }
 
@@ -91,6 +109,17 @@ function App() {
 
   return (
     <div>
+      <div
+        style={{
+          width: "50%",
+        }}
+      >
+        <Select onChange={handleSelectChange}>
+          <option value="population">Population</option>
+          <option value="name">Name</option>
+          <option value="area">Area</option>
+        </Select>
+      </div>
       <h2 className="subtitle">Found {countries.length} countries</h2>
       <table>
         <thead>

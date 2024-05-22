@@ -4,12 +4,21 @@ import {
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
-  SortingState,
+  getFilteredRowModel,
+  FilterFn,
 } from "@tanstack/react-table";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Country, SortBy } from "./types";
-import Select from "./components/Select";
+import { Country, RestCountry } from "./types";
+import useFilters from "./useFilters";
+import RegionFilter from "./components/RegionFilter";
+import SortSelect from "./components/SortSelect";
+
+declare module "@tanstack/react-table" {
+  interface FilterFns {
+    myCustomFilter: FilterFn<unknown>;
+  }
+}
 
 const columnHelper = createColumnHelper<Country>();
 
@@ -43,64 +52,50 @@ const columns = [
   columnHelper.accessor("region", {
     cell: (info) => info.getValue(),
     id: "region",
+    filterFn: "myCustomFilter",
     footer: (info) => info.column.id,
     header: () => <span>Region</span>,
   }),
 ];
 
 function App() {
-  console.log("app rendered");
-
   const [countries, setCountries] = useState<Country[]>([]);
 
-  const [sorting, setSorting] = useState<SortingState>([
-    {
-      desc: true,
-      id: "population",
-    },
-  ]);
+  const { columnFilters, sorting, regions, setRegions, setSorting } =
+    useFilters();
 
   const table = useReactTable({
     data: countries,
     columns,
+    filterFns: {
+      myCustomFilter: (rows, _, filterValue) => {
+        if (!filterValue.length) return true;
+        if (filterValue.includes(rows.original.region.toLowerCase()))
+          return true;
+        return false;
+      },
+    },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     state: {
+      columnFilters,
       sorting,
     },
   });
 
-  function handleSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const value = e.target.value as SortBy;
-    const newSorting = [
-      {
-        desc: value === "name" ? false : true,
-        id: value,
-      },
-    ];
-    setSorting(newSorting);
-  }
-
   useEffect(() => {
     async function fetchCountries() {
       const { data } = await axios.get("https://restcountries.com/v3.1/all");
-      const countries = data.map(
-        (item: {
-          area: number;
-          flags: { png: string };
-          name: { common: string };
-          population: number;
-          region: string;
-        }) => {
-          return {
-            area: item.area,
-            flag: item.flags.png,
-            name: item.name.common,
-            population: item.population,
-            region: item.region,
-          };
-        }
-      );
+      const countries = data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+        };
+      });
       setCountries(countries);
     }
 
@@ -109,16 +104,17 @@ function App() {
 
   return (
     <div>
-      <div
-        style={{
-          width: "50%",
-        }}
-      >
-        <Select onChange={handleSelectChange}>
-          <option value="population">Population</option>
-          <option value="name">Name</option>
-          <option value="area">Area</option>
-        </Select>
+      <div className="filters">
+        <div>
+          <RegionFilter regions={regions} setRegions={setRegions} />
+        </div>
+        <div
+          style={{
+            width: "50%",
+          }}
+        >
+          <SortSelect setSorting={setSorting} />
+        </div>
       </div>
       <h2 className="subtitle">Found {countries.length} countries</h2>
       <table>

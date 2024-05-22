@@ -5,11 +5,20 @@ import {
   useReactTable,
   getSortedRowModel,
   SortingState,
+  getFilteredRowModel,
+  FilterFn,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Country, SortBy } from "./types";
 import Select from "./components/Select";
+
+declare module "@tanstack/react-table" {
+  interface FilterFns {
+    myCustomFilter: FilterFn<unknown>;
+  }
+}
 
 const columnHelper = createColumnHelper<Country>();
 
@@ -43,10 +52,52 @@ const columns = [
   columnHelper.accessor("region", {
     cell: (info) => info.getValue(),
     id: "region",
+    filterFn: "myCustomFilter",
     footer: (info) => info.column.id,
     header: () => <span>Region</span>,
   }),
 ];
+
+const checkboxOptions = [
+  {
+    id: "americas",
+    label: "Americas",
+    value: "americas",
+  },
+  {
+    id: "antartics",
+    label: "Antartics",
+    value: "antartics",
+  },
+  {
+    id: "africa",
+    label: "Africa",
+    value: "africa",
+  },
+  {
+    id: "asia",
+    label: "Asia",
+    value: "asia",
+  },
+  {
+    id: "europe",
+    label: "Europe",
+    value: "europe",
+  },
+  {
+    id: "oceania",
+    label: "Oceania",
+    value: "oceania",
+  },
+];
+
+type Region =
+  | "americas"
+  | "antartics"
+  | "africa"
+  | "asia"
+  | "europe"
+  | "oceania";
 
 function App() {
   console.log("app rendered");
@@ -60,12 +111,35 @@ function App() {
     },
   ]);
 
+  const [regions, setRegions] = useState<Region[]>([]);
+
+  const columnFilters = useMemo(
+    () =>
+      [
+        {
+          id: "region",
+          value: regions,
+        },
+      ] as ColumnFiltersState,
+    [regions]
+  );
+
   const table = useReactTable({
     data: countries,
     columns,
+    filterFns: {
+      myCustomFilter: (rows, _, filterValue) => {
+        if (!filterValue.length) return true;
+        if (filterValue.includes(rows.original.region.toLowerCase()))
+          return true;
+        return false;
+      },
+    },
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     state: {
+      columnFilters,
       sorting,
     },
   });
@@ -109,6 +183,32 @@ function App() {
 
   return (
     <div>
+      <div>
+        <div role="group" aria-labelledby="region-heading">
+          <h3 id="region-heading">Region</h3>
+          {checkboxOptions.map((option) => (
+            <div key={option.id}>
+              <input
+                checked={regions.includes(option.value as Region)}
+                type="checkbox"
+                name="region"
+                id={option.id}
+                value={option.value}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value as Region;
+
+                  if (e.target.checked) {
+                    setRegions([...regions, value]);
+                  } else {
+                    setRegions(regions.filter((region) => region !== value));
+                  }
+                }}
+              />
+              <label htmlFor={option.id}>{option.label}</label>
+            </div>
+          ))}
+        </div>
+      </div>
       <div
         style={{
           width: "50%",

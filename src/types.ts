@@ -4,6 +4,7 @@ export type Country = {
   population: number;
   area: number;
   region: string;
+  independent: boolean;
 };
 
 export type RestCountry = {
@@ -12,6 +13,7 @@ export type RestCountry = {
   name: { common: string };
   population: number;
   region: string;
+  independent: boolean;
 };
 
 export type SortBy = "population" | "name" | "area";

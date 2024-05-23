@@ -13,10 +13,13 @@ import { Country, RestCountry } from "./types";
 import useFilters from "./useFilters";
 import RegionFilter from "./components/RegionFilter";
 import SortSelect from "./components/SortSelect";
+import { Checkbox, Field, Label } from "@headlessui/react";
+import { CheckIcon } from "@heroicons/react/16/solid";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
     myCustomFilter: FilterFn<unknown>;
+    independentFilter: FilterFn<unknown>;
   }
 }
 
@@ -56,13 +59,27 @@ const columns = [
     footer: (info) => info.column.id,
     header: () => <span>Region</span>,
   }),
+  columnHelper.accessor("independent", {
+    cell: (info) => {
+      return info.getValue() ? "Yes" : "No";
+    },
+    id: "independent",
+    filterFn: "independentFilter",
+  }),
 ];
 
 function App() {
   const [countries, setCountries] = useState<Country[]>([]);
 
-  const { columnFilters, sorting, regions, setRegions, setSorting } =
-    useFilters();
+  const {
+    columnFilters,
+    sorting,
+    regions,
+    isIndependent,
+    setRegions,
+    setSorting,
+    setIsIndependent,
+  } = useFilters();
 
   const table = useReactTable({
     data: countries,
@@ -74,10 +91,21 @@ function App() {
           return true;
         return false;
       },
+      independentFilter: (rows, _, filterValue) => {
+        if (filterValue) {
+          return rows.original.independent;
+        }
+        return true;
+      },
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    initialState: {
+      columnVisibility: {
+        independent: false,
+      },
+    },
     state: {
       columnFilters,
       sorting,
@@ -91,6 +119,7 @@ function App() {
         return {
           area: item.area,
           flag: item.flags.png,
+          independent: item.independent,
           name: item.name.common,
           population: item.population,
           region: item.region,
@@ -104,7 +133,7 @@ function App() {
 
   return (
     <div>
-      <div className="filters">
+      <div className="filters mb-6">
         <div>
           <RegionFilter regions={regions} setRegions={setRegions} />
         </div>
@@ -115,8 +144,23 @@ function App() {
         >
           <SortSelect setSorting={setSorting} />
         </div>
+        <div>
+          <h3 className="text-xs text-light-grey mb-3">Status</h3>
+          <Field className="flex items-center gap-3">
+            <Checkbox
+              checked={isIndependent}
+              onChange={setIsIndependent}
+              className="group size-6 rounded-md bg-transparent p-1 ring-1 ring-white/15 ring-inset data-[checked]:bg-blue-600 cursor-pointer flex items-center justify-center"
+            >
+              <CheckIcon className="hidden size-6 fill-white group-data-[checked]:block" />
+            </Checkbox>
+            <Label className="text-sm font-semibold">
+              Member of the United Nations
+            </Label>
+          </Field>
+        </div>
       </div>
-      <h2 className="subtitle">Found {countries.length} countries</h2>
+      <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

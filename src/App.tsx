@@ -13,13 +13,13 @@ import { Country, RestCountry } from "./types";
 import useFilters from "./useFilters";
 import RegionFilter from "./components/RegionFilter";
 import SortSelect from "./components/SortSelect";
-import { Checkbox, Field, Label } from "@headlessui/react";
-import { CheckIcon } from "@heroicons/react/16/solid";
+import Checkbox from "./components/Checkbox";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
     myCustomFilter: FilterFn<unknown>;
     independentFilter: FilterFn<unknown>;
+    unMemberFilter: FilterFn<unknown>;
   }
 }
 
@@ -66,6 +66,13 @@ const columns = [
     id: "independent",
     filterFn: "independentFilter",
   }),
+  columnHelper.accessor("unMember", {
+    cell: (info) => {
+      return info.getValue() ? "Yes" : "No";
+    },
+    id: "unMember",
+    filterFn: "unMemberFilter",
+  }),
 ];
 
 function App() {
@@ -79,6 +86,8 @@ function App() {
     setRegions,
     setSorting,
     setIsIndependent,
+    isUnMember,
+    setIsUnMember,
   } = useFilters();
 
   const table = useReactTable({
@@ -97,6 +106,12 @@ function App() {
         }
         return true;
       },
+      unMemberFilter: (rows, _, filterValue) => {
+        if (filterValue) {
+          return rows.original.unMember;
+        }
+        return true;
+      },
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -104,6 +119,7 @@ function App() {
     initialState: {
       columnVisibility: {
         independent: false,
+        unMember: false,
       },
     },
     state: {
@@ -123,6 +139,7 @@ function App() {
           name: item.name.common,
           population: item.population,
           region: item.region,
+          unMember: item.unMember,
         };
       });
       setCountries(countries);
@@ -144,20 +161,18 @@ function App() {
         >
           <SortSelect setSorting={setSorting} />
         </div>
-        <div>
-          <h3 className="text-xs text-light-grey mb-3">Status</h3>
-          <Field className="flex items-center gap-3">
-            <Checkbox
-              checked={isIndependent}
-              onChange={setIsIndependent}
-              className="group size-6 rounded-md bg-transparent p-1 ring-1 ring-white/15 ring-inset data-[checked]:bg-blue-600 cursor-pointer flex items-center justify-center"
-            >
-              <CheckIcon className="hidden size-6 fill-white group-data-[checked]:block" />
-            </Checkbox>
-            <Label className="text-sm font-semibold">
-              Member of the United Nations
-            </Label>
-          </Field>
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xs text-light-grey font-semibold">Status</h3>
+          <Checkbox
+            checked={isUnMember}
+            label="Member of the United Nations"
+            onChange={setIsUnMember}
+          />
+          <Checkbox
+            checked={isIndependent}
+            label="Independent"
+            onChange={setIsIndependent}
+          />
         </div>
       </div>
       <h2 className="subtitle">Found {table.getRowCount()} countries</h2>

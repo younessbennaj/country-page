@@ -149,16 +149,16 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <div className="px-8 py-6">
+      <div className="mb-9">
+        <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
+      </div>
+
       <div className="filters mb-6">
         <div>
           <RegionFilter regions={regions} setRegions={setRegions} />
         </div>
-        <div
-          style={{
-            width: "50%",
-          }}
-        >
+        <div>
           <SortSelect setSorting={setSorting} />
         </div>
         <div className="flex flex-col gap-3">
@@ -175,7 +175,6 @@ function App() {
           />
         </div>
       </div>
-      <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

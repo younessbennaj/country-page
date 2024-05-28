@@ -1,6 +1,7 @@
 import { ComponentPropsWithRef } from "react";
-import { Select as SelectUI, Label, Field } from "@headlessui/react";
+import { Select as SelectUI, Field } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import Label from "./Label";
 
 type SelectProps = ComponentPropsWithRef<"select"> & {
   children: React.ReactNode;
@@ -9,7 +10,7 @@ type SelectProps = ComponentPropsWithRef<"select"> & {
 function Select({ children, ...delegation }: SelectProps) {
   return (
     <Field>
-      <Label className="filter-label">Project status</Label>
+      <Label>Project status</Label>
       <div style={{ position: "relative" }}>
         <SelectUI {...delegation} className="select">
           {children}

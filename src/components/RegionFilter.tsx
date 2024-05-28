@@ -1,5 +1,7 @@
+import { Field } from "@headlessui/react";
 import { Region } from "../types";
 import CheckboxButton from "./CheckboxButton";
+import Label from "./Label";
 
 const checkboxOptions = [
   {
@@ -42,10 +44,8 @@ function RegionFilter({
   setRegions: (regions: Region[]) => void;
 }) {
   return (
-    <div role="group" aria-labelledby="region-heading">
-      <h3 className="filter-label" id="region-heading">
-        Region
-      </h3>
+    <Field role="group" aria-labelledby="region-heading">
+      <Label id="region-heading">Region</Label>
       <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
         {checkboxOptions.map((option) => (
           <CheckboxButton
@@ -66,7 +66,7 @@ function RegionFilter({
           />
         ))}
       </div>
-    </div>
+    </Field>
   );
 }
 

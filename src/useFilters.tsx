@@ -10,6 +10,10 @@ function useFilters() {
     },
   ]);
 
+  const [isIndependent, setIsIndependent] = useState(false);
+
+  const [isUnMember, setIsUnMember] = useState(false);
+
   const [regions, setRegions] = useState<Region[]>([]);
 
   const columnFilters = useMemo(
@@ -19,16 +23,28 @@ function useFilters() {
           id: "region",
           value: regions,
         },
+        {
+          id: "independent",
+          value: isIndependent,
+        },
+        {
+          id: "unMember",
+          value: isUnMember,
+        },
       ] as ColumnFiltersState,
-    [regions]
+    [regions, isIndependent, isUnMember]
   );
 
   return {
     columnFilters,
+    isIndependent,
+    isUnMember,
     sorting,
     regions,
+    setIsUnMember,
     setRegions,
     setSorting,
+    setIsIndependent,
   };
 }
 

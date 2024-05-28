@@ -118,7 +118,7 @@ img {
   cursor: pointer;
 }
 
-.checkbox:focus-within + .checkbox-label {
+.checkbox:focus-visible + .checkbox-label {
   outline: 2px solid var(--blue);
 }
 

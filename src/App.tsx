@@ -13,10 +13,13 @@ import { Country, RestCountry } from "./types";
 import useFilters from "./useFilters";
 import RegionFilter from "./components/RegionFilter";
 import SortSelect from "./components/SortSelect";
+import Checkbox from "./components/Checkbox";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
     myCustomFilter: FilterFn<unknown>;
+    independentFilter: FilterFn<unknown>;
+    unMemberFilter: FilterFn<unknown>;
   }
 }
 
@@ -56,13 +59,36 @@ const columns = [
     footer: (info) => info.column.id,
     header: () => <span>Region</span>,
   }),
+  columnHelper.accessor("independent", {
+    cell: (info) => {
+      return info.getValue() ? "Yes" : "No";
+    },
+    id: "independent",
+    filterFn: "independentFilter",
+  }),
+  columnHelper.accessor("unMember", {
+    cell: (info) => {
+      return info.getValue() ? "Yes" : "No";
+    },
+    id: "unMember",
+    filterFn: "unMemberFilter",
+  }),
 ];
 
 function App() {
   const [countries, setCountries] = useState<Country[]>([]);
 
-  const { columnFilters, sorting, regions, setRegions, setSorting } =
-    useFilters();
+  const {
+    columnFilters,
+    sorting,
+    regions,
+    isIndependent,
+    setRegions,
+    setSorting,
+    setIsIndependent,
+    isUnMember,
+    setIsUnMember,
+  } = useFilters();
 
   const table = useReactTable({
     data: countries,
@@ -74,10 +100,28 @@ function App() {
           return true;
         return false;
       },
+      independentFilter: (rows, _, filterValue) => {
+        if (filterValue) {
+          return rows.original.independent;
+        }
+        return true;
+      },
+      unMemberFilter: (rows, _, filterValue) => {
+        if (filterValue) {
+          return rows.original.unMember;
+        }
+        return true;
+      },
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    initialState: {
+      columnVisibility: {
+        independent: false,
+        unMember: false,
+      },
+    },
     state: {
       columnFilters,
       sorting,
@@ -91,9 +135,11 @@ function App() {
         return {
           area: item.area,
           flag: item.flags.png,
+          independent: item.independent,
           name: item.name.common,
           population: item.population,
           region: item.region,
+          unMember: item.unMember,
         };
       });
       setCountries(countries);
@@ -103,20 +149,32 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <div className="filters">
+    <div className="px-8 py-6">
+      <div className="mb-9">
+        <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
+      </div>
+
+      <div className="filters mb-6">
         <div>
           <RegionFilter regions={regions} setRegions={setRegions} />
         </div>
-        <div
-          style={{
-            width: "50%",
-          }}
-        >
+        <div>
           <SortSelect setSorting={setSorting} />
         </div>
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xs text-light-grey font-semibold">Status</h3>
+          <Checkbox
+            checked={isUnMember}
+            label="Member of the United Nations"
+            onChange={setIsUnMember}
+          />
+          <Checkbox
+            checked={isIndependent}
+            label="Independent"
+            onChange={setIsIndependent}
+          />
+        </div>
       </div>
-      <h2 className="subtitle">Found {countries.length} countries</h2>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

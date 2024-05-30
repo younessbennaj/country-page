@@ -14,6 +14,7 @@ import useFilters from "./useFilters";
 import RegionFilter from "./components/RegionFilter";
 import SortSelect from "./components/SortSelect";
 import Checkbox from "./components/Checkbox";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
@@ -77,6 +78,7 @@ const columns = [
 
 function App() {
   const [countries, setCountries] = useState<Country[]>([]);
+  const [query, setQuery] = useState<string>("");
 
   const {
     columnFilters,
@@ -148,10 +150,77 @@ function App() {
     fetchCountries();
   }, []);
 
+  function getCountriesByName(name: string) {
+    return axios.get(`https://restcountries.com/v3.1/name/${name}`);
+  }
+
+  function getCountriesByRegion(region: string) {
+    return axios.get(`https://restcountries.com/v3.1/region/${region}`);
+  }
+
+  async function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    let nameCountries = [];
+
+    let regionCountries = [];
+
+    try {
+      const nameResponse = await getCountriesByName(query);
+
+      nameCountries = nameResponse.data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          independent: item.independent,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+          unMember: item.unMember,
+        };
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      const regionResponse = await getCountriesByRegion(query);
+
+      regionCountries = regionResponse.data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          independent: item.independent,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+          unMember: item.unMember,
+        };
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    setCountries([...nameCountries, ...regionCountries]);
+  }
+
   return (
     <div className="px-8 py-6">
-      <div className="mb-9">
+      <div className="mb-9 flex items-center justify-between">
         <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
+        <form onSubmit={handleSearchSubmit}>
+          <div className="p-2 bg-dark rounded-xl w-fit flex gap-3 has-[:focus]:outline has-[:focus]:outline-blue-400 pr-[50px]">
+            <MagnifyingGlassIcon width={24} height={24} />
+            <input
+              className="bg-transparent focus-within:border-none focus-within:outline-none"
+              type="text"
+              name="search"
+              id="search"
+              placeholder="Search by Name, Region, Subregion"
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+        </form>
       </div>
 
       <div className="filters mb-6">

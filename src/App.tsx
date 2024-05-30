@@ -7,14 +7,14 @@ import {
   getFilteredRowModel,
   FilterFn,
 } from "@tanstack/react-table";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { Country, RestCountry } from "./types";
 import useFilters from "./useFilters";
 import RegionFilter from "./components/RegionFilter";
 import SortSelect from "./components/SortSelect";
 import Checkbox from "./components/Checkbox";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { useQuery } from "@tanstack/react-query";
+import { getAllCountries } from "./api";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
@@ -77,8 +77,24 @@ const columns = [
 ];
 
 function App() {
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [query, setQuery] = useState<string>("");
+  const { data: countries } = useQuery({
+    queryKey: ["countries"],
+    queryFn: async () => {
+      const { data } = await getAllCountries();
+      const countries = data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          independent: item.independent,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+          unMember: item.unMember,
+        };
+      });
+      return countries;
+    },
+  });
 
   const {
     columnFilters,
@@ -130,85 +146,11 @@ function App() {
     },
   });
 
-  useEffect(() => {
-    async function fetchCountries() {
-      const { data } = await axios.get("https://restcountries.com/v3.1/all");
-      const countries = data.map((item: RestCountry) => {
-        return {
-          area: item.area,
-          flag: item.flags.png,
-          independent: item.independent,
-          name: item.name.common,
-          population: item.population,
-          region: item.region,
-          unMember: item.unMember,
-        };
-      });
-      setCountries(countries);
-    }
-
-    fetchCountries();
-  }, []);
-
-  function getCountriesByName(name: string) {
-    return axios.get(`https://restcountries.com/v3.1/name/${name}`);
-  }
-
-  function getCountriesByRegion(region: string) {
-    return axios.get(`https://restcountries.com/v3.1/region/${region}`);
-  }
-
-  async function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    let nameCountries = [];
-
-    let regionCountries = [];
-
-    try {
-      const nameResponse = await getCountriesByName(query);
-
-      nameCountries = nameResponse.data.map((item: RestCountry) => {
-        return {
-          area: item.area,
-          flag: item.flags.png,
-          independent: item.independent,
-          name: item.name.common,
-          population: item.population,
-          region: item.region,
-          unMember: item.unMember,
-        };
-      });
-    } catch (err) {
-      console.error(err);
-    }
-
-    try {
-      const regionResponse = await getCountriesByRegion(query);
-
-      regionCountries = regionResponse.data.map((item: RestCountry) => {
-        return {
-          area: item.area,
-          flag: item.flags.png,
-          independent: item.independent,
-          name: item.name.common,
-          population: item.population,
-          region: item.region,
-          unMember: item.unMember,
-        };
-      });
-    } catch (err) {
-      console.error(err);
-    }
-
-    setCountries([...nameCountries, ...regionCountries]);
-  }
-
   return (
     <div className="px-8 py-6">
       <div className="mb-9 flex items-center justify-between">
         <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
-        <form onSubmit={handleSearchSubmit}>
+        <form>
           <div className="p-2 bg-dark rounded-xl w-fit flex gap-3 has-[:focus]:outline has-[:focus]:outline-blue-400 pr-[50px]">
             <MagnifyingGlassIcon width={24} height={24} />
             <input
@@ -217,7 +159,7 @@ function App() {
               name="search"
               id="search"
               placeholder="Search by Name, Region, Subregion"
-              onChange={(e) => setQuery(e.target.value)}
+              // onChange={(e) => setQuery(e.target.value)}
             />
           </div>
         </form>

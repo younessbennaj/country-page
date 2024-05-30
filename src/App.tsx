@@ -150,9 +150,58 @@ function App() {
     fetchCountries();
   }, []);
 
-  function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function getCountriesByName(name: string) {
+    return axios.get(`https://restcountries.com/v3.1/name/${name}`);
+  }
+
+  function getCountriesByRegion(region: string) {
+    return axios.get(`https://restcountries.com/v3.1/region/${region}`);
+  }
+
+  async function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    alert(query);
+
+    let nameCountries = [];
+
+    let regionCountries = [];
+
+    try {
+      const nameResponse = await getCountriesByName(query);
+
+      nameCountries = nameResponse.data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          independent: item.independent,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+          unMember: item.unMember,
+        };
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      const regionResponse = await getCountriesByRegion(query);
+
+      regionCountries = regionResponse.data.map((item: RestCountry) => {
+        return {
+          area: item.area,
+          flag: item.flags.png,
+          independent: item.independent,
+          name: item.name.common,
+          population: item.population,
+          region: item.region,
+          unMember: item.unMember,
+        };
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    setCountries([...nameCountries, ...regionCountries]);
   }
 
   return (

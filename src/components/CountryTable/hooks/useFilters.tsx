@@ -1,6 +1,6 @@
 import { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { Region } from "./types";
+import { Region } from "../../../types";
 
 function useFilters() {
   const [sorting, setSorting] = useState<SortingState>([

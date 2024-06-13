@@ -20,16 +20,16 @@ declare module "@tanstack/react-table" {
 const columnHelper = createColumnHelper<Country>();
 
 const columns = [
-  columnHelper.accessor("flag", {
+  columnHelper.accessor("flags", {
     cell: (info) => {
-      return <img src={info.getValue()} />;
+      return <img src={info.getValue().png} />;
     },
-    id: "flag",
+    id: "flags",
     footer: (info) => info.column.id,
     header: () => <span>Flag</span>,
   }),
   columnHelper.accessor("name", {
-    cell: (info) => info.getValue(),
+    cell: (info) => info.getValue().common,
     id: "name",
     footer: (info) => info.column.id,
     header: () => <span>Name</span>,

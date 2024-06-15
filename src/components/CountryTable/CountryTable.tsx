@@ -16,13 +16,20 @@ function CountryTable() {
     setRegions,
     setSorting,
     table,
+    filtering,
+    setFiltering,
   } = useCountryTable(countries);
 
   return (
     <>
       <div className="mb-9 flex items-center justify-between">
         <h2 className="subtitle">Found {table.getRowCount()} countries</h2>
-        <CountrySearchBar />
+        <CountrySearchBar
+          query={filtering}
+          onQueryChange={(query: string) => {
+            setFiltering(query);
+          }}
+        />
       </div>
 
       <Filters

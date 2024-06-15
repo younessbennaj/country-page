@@ -2,7 +2,7 @@ import axios from "axios";
 
 export function getAllCountries() {
   return axios.get(
-    "https://restcountries.com/v3.1/all?fields=area,flags,population,region,name,independent,unMember"
+    "https://restcountries.com/v3.1/all?fields=area,flags,population,region,name,independent,unMember,subregion"
   );
 }
 

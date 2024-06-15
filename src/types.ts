@@ -7,6 +7,7 @@ export type Country = {
   independent: boolean;
   unMember: boolean;
   subregion: string;
+  ccn3: number;
 };
 
 export type SortBy = "population" | "name" | "area";

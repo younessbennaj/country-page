@@ -3,9 +3,11 @@ import { Filters } from "../Filters/Filters";
 import CountrySearchBar from "../CountrySearchBar/CountrySearchBar";
 import { useCountryTable } from "./hooks/useCountryTable";
 import { useCountriesQuery } from "../../queries/useCountriesQuery";
+import { useNavigate } from "react-router-dom";
 
 function CountryTable() {
   const { data: countries, isLoading } = useCountriesQuery();
+  const navigate = useNavigate();
 
   const {
     isIndependent,
@@ -63,9 +65,15 @@ function CountryTable() {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+              <tr
+                className="cursor-pointer hover:bg-[#282B30]"
+                key={row.id}
+                onClick={() => {
+                  navigate(`/countries/${row.original.ccn3}`);
+                }}
+              >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
+                  <td>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

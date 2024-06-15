@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import useFilters from "./useFilters";
 import { Country } from "../../../types";
+import React from "react";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
@@ -20,16 +21,16 @@ declare module "@tanstack/react-table" {
 const columnHelper = createColumnHelper<Country>();
 
 const columns = [
-  columnHelper.accessor("flags", {
+  columnHelper.accessor("flags.png", {
     cell: (info) => {
-      return <img src={info.getValue().png} />;
+      return <img src={info.getValue()} />;
     },
-    id: "flags",
+    id: "flag",
     footer: (info) => info.column.id,
     header: () => <span>Flag</span>,
   }),
-  columnHelper.accessor("name", {
-    cell: (info) => info.getValue().common,
+  columnHelper.accessor("name.common", {
+    cell: (info) => info.getValue(),
     id: "name",
     footer: (info) => info.column.id,
     header: () => <span>Name</span>,
@@ -39,12 +40,14 @@ const columns = [
     id: "population",
     footer: (info) => info.column.id,
     header: () => <span>Population</span>,
+    enableGlobalFilter: false,
   }),
   columnHelper.accessor("area", {
     cell: (info) => info.getValue(),
     id: "area",
     footer: (info) => info.column.id,
     header: () => <span>Area (km²)</span>,
+    enableGlobalFilter: false,
   }),
   columnHelper.accessor("region", {
     cell: (info) => info.getValue(),
@@ -53,6 +56,7 @@ const columns = [
     footer: (info) => info.column.id,
     header: () => <span>Region</span>,
   }),
+  // hidden columns for filtering purposes
   columnHelper.accessor("independent", {
     cell: (info) => {
       return info.getValue() ? "Yes" : "No";
@@ -66,6 +70,10 @@ const columns = [
     },
     id: "unMember",
     filterFn: "unMemberFilter",
+  }),
+  columnHelper.accessor("subregion", {
+    cell: (info) => info.getValue(),
+    id: "subregion",
   }),
 ];
 
@@ -81,6 +89,8 @@ export function useCountryTable(countries: Country[] | null) {
     isUnMember,
     setIsUnMember,
   } = useFilters();
+
+  const [filtering, setFiltering] = React.useState("");
 
   const table = useReactTable({
     data: countries || [],
@@ -112,12 +122,15 @@ export function useCountryTable(countries: Country[] | null) {
       columnVisibility: {
         independent: false,
         unMember: false,
+        subregion: false,
       },
     },
     state: {
+      globalFilter: filtering,
       columnFilters,
       sorting,
     },
+    onGlobalFilterChange: setFiltering,
   });
 
   return {
@@ -129,5 +142,7 @@ export function useCountryTable(countries: Country[] | null) {
     setIsIndependent,
     isUnMember,
     setIsUnMember,
+    filtering,
+    setFiltering,
   };
 }

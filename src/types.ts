@@ -6,6 +6,7 @@ export type Country = {
   region: string;
   independent: boolean;
   unMember: boolean;
+  subregion: string;
 };
 
 export type SortBy = "population" | "name" | "area";

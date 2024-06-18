@@ -9,6 +9,7 @@ import {
 import useFilters from "./useFilters";
 import { Country } from "../../../types";
 import React from "react";
+import { useMediaQuery } from "@uidotdev/usehooks";
 
 declare module "@tanstack/react-table" {
   interface FilterFns {
@@ -23,7 +24,12 @@ const columnHelper = createColumnHelper<Country>();
 const columns = [
   columnHelper.accessor("flags.png", {
     cell: (info) => {
-      return <img src={info.getValue()} />;
+      return (
+        <img
+          className="object-cover w-[50px] h-[38px] rounded-[4px]"
+          src={info.getValue()}
+        />
+      );
     },
     id: "flag",
     footer: (info) => info.column.id,
@@ -90,6 +96,10 @@ export function useCountryTable(countries: Country[] | null) {
     setIsUnMember,
   } = useFilters();
 
+  const isExtraLargeDevice = useMediaQuery(
+    "only screen and (min-width : 1280px)"
+  );
+
   const [filtering, setFiltering] = React.useState("");
 
   const table = useReactTable({
@@ -118,14 +128,13 @@ export function useCountryTable(countries: Country[] | null) {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    initialState: {
+    state: {
       columnVisibility: {
+        region: isExtraLargeDevice,
         independent: false,
         unMember: false,
         subregion: false,
       },
-    },
-    state: {
       globalFilter: filtering,
       columnFilters,
       sorting,

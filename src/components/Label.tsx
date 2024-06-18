@@ -5,9 +5,13 @@ type LabelProps = ComponentProps<"label"> & {
   children: React.ReactNode;
 };
 
-function Label({ children }: LabelProps) {
+function Label({ children, className = "" }: LabelProps) {
   return (
-    <LabelUI className="text-xs text-light-grey font-semibold">
+    <LabelUI
+      className={
+        "inline-block text-xs text-light-grey font-bold" + " " + className
+      }
+    >
       {children}
     </LabelUI>
   );

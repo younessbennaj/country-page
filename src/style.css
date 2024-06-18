@@ -65,14 +65,18 @@ img {
   appearance: none;
   border-radius: 0.5rem;
   border: none;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding-top: 0.375rem;
-  padding-bottom: 0.375rem;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
+  background-color: #1b1d1f;
+  padding: 12px 16px;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: white;
+  color: #d2d5da;
+  border: 2px solid #282b30;
+  cursor: pointer;
+}
+
+.select-wrapper:focus-within {
+  outline: 2px solid var(--blue);
+  border-radius: 0.5rem;
 }
 
 .select:focus {
@@ -88,11 +92,11 @@ img {
 .icon {
   pointer-events: none;
   position: absolute;
-  top: 0.625rem;
-  right: 0.625rem;
+  top: 16px;
+  right: 16px;
   width: 1rem;
   height: 1rem;
-  fill: rgba(255, 255, 255, 0.6);
+  fill: #d2d5da;
 }
 
 .filter-label {

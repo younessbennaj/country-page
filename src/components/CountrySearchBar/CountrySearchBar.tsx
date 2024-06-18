@@ -8,7 +8,7 @@ function CountrySearchBar({
   onQueryChange: (query: string) => void;
 }) {
   return (
-    <div className="p-2 bg-dark rounded-xl w-fit flex gap-3 has-[:focus]:outline has-[:focus]:outline-blue-400 pr-[50px]">
+    <div className="p-2 bg-dark rounded-xl flex gap-3 has-[:focus]:outline has-[:focus]:outline-blue-400 pr-[50px] w-[340px]">
       <MagnifyingGlassIcon width={24} height={24} />
       <input
         className="bg-transparent focus-within:border-none focus-within:outline-none"

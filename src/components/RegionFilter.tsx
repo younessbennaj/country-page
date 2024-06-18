@@ -45,8 +45,10 @@ function RegionFilter({
 }) {
   return (
     <Field role="group" aria-labelledby="region-heading">
-      <Label id="region-heading">Region</Label>
-      <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+      <Label className="mb-3" id="region-heading">
+        Region
+      </Label>
+      <div className="flex flex-wrap gap-2">
         {checkboxOptions.map((option) => (
           <CheckboxButton
             key={option.id}

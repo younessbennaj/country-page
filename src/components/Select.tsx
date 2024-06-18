@@ -10,8 +10,8 @@ type SelectProps = ComponentPropsWithRef<"select"> & {
 function Select({ children, ...delegation }: SelectProps) {
   return (
     <Field>
-      <Label>Project status</Label>
-      <div style={{ position: "relative" }}>
+      <Label>Sort by</Label>
+      <div className="select-wrapper" style={{ position: "relative" }}>
         <SelectUI {...delegation} className="select">
           {children}
         </SelectUI>

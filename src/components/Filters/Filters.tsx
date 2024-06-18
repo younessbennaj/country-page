@@ -24,11 +24,12 @@ export function Filters({
   return (
     <div className="filters mb-6">
       <div>
-        <RegionFilter regions={regions} setRegions={setRegions} />
-      </div>
-      <div>
         <SortSelect setSorting={setSorting} />
       </div>
+      <div>
+        <RegionFilter regions={regions} setRegions={setRegions} />
+      </div>
+
       <div className="flex flex-col gap-3">
         <h3 className="text-xs text-light-grey font-semibold">Status</h3>
         <Checkbox

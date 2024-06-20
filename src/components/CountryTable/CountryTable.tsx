@@ -3,13 +3,22 @@ import { Filters } from "../Filters/Filters";
 import CountrySearchBar from "../CountrySearchBar/CountrySearchBar";
 import { useCountryTable } from "./hooks/useCountryTable";
 import { useCountriesQuery } from "../../queries/useCountriesQuery";
-import { useNavigate } from "react-router-dom";
 import React from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer, VirtualItem } from "@tanstack/react-virtual";
+import CountryTableRow from "../CountryTableRow/CountryTableRow";
+import { useLocation } from "react-router-dom";
+
+let _kSavedOffset = 0;
+let _kMeasurementsCache = [] as VirtualItem[];
 
 function CountryTable() {
   const { data: countries, isLoading } = useCountriesQuery();
-  const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const { previouslyVisitedCountryPageId } = location.state as {
+    previouslyVisitedCountryPageId: string;
+  };
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
@@ -29,10 +38,18 @@ function CountryTable() {
   const { rows } = table.getRowModel();
 
   const virtualizer = useVirtualizer({
+    initialOffset: _kSavedOffset,
+    initialMeasurementsCache: _kMeasurementsCache,
     count: rows.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 62,
     overscan: 10,
+    onChange: (virtualizer) => {
+      if (!virtualizer.isScrolling) {
+        _kMeasurementsCache = virtualizer.measurementsCache;
+        _kSavedOffset = virtualizer.scrollOffset;
+      }
+    },
   });
 
   return (
@@ -100,28 +117,15 @@ function CountryTable() {
                   {virtualizer.getVirtualItems().map((virtualRow, index) => {
                     const row = table.getRowModel().rows[virtualRow.index];
                     return (
-                      <tr
-                        className="cursor-pointer hover:bg-[#282B30]"
+                      <CountryTableRow
                         key={row.id}
-                        onClick={() => {
-                          navigate(`/countries/${row.original.ccn3}`);
-                        }}
-                        style={{
-                          height: `${virtualRow.size}px`,
-                          transform: `translateY(${
-                            virtualRow.start - index * virtualRow.size
-                          }px)`,
-                        }}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </td>
-                        ))}
-                      </tr>
+                        index={index}
+                        isFocused={
+                          previouslyVisitedCountryPageId === row.original.ccn3
+                        }
+                        row={row}
+                        virtualRow={virtualRow}
+                      />
                     );
                   })}
                 </tbody>

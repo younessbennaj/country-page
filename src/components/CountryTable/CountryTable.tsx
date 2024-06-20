@@ -7,6 +7,7 @@ import React from "react";
 import { useVirtualizer, VirtualItem } from "@tanstack/react-virtual";
 import CountryTableRow from "../CountryTableRow/CountryTableRow";
 import { useLocation } from "react-router-dom";
+import TableBodySkeleton from "../TableBodySkeleton/TableBodySkeleton";
 
 let _kSavedOffset = 0;
 let _kMeasurementsCache = [] as VirtualItem[];
@@ -16,9 +17,8 @@ function CountryTable() {
 
   const location = useLocation();
 
-  const { previouslyVisitedCountryPageId } = location.state as {
-    previouslyVisitedCountryPageId: string;
-  };
+  let previouslyVisitedCountryPageId =
+    location.state?.previouslyVisitedCountryPageId;
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
@@ -79,40 +79,46 @@ function CountryTable() {
         </div>
         <div ref={parentRef} className="grow h-[600px] overflow-auto">
           <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : table.getRowCount() === 0 ? (
-              <div className="flex justify-center">
-                <p className="my-10 text-xl">No countries found</p>
-              </div>
-            ) : (
-              <table>
-                <colgroup>
-                  <col style={{ width: "15%" }} />
-                  <col style={{ width: "20%" }} />
-                  <col style={{ width: "20%" }} />
-                  <col style={{ width: "15%" }} />
-                  <col
-                    className="hidden xl:table-column"
-                    style={{ width: "15%" }}
-                  />
-                </colgroup>
-                <thead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <th key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
+            <table>
+              <colgroup>
+                <col style={{ width: "15%" }} />
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "15%" }} />
+                <col
+                  className="hidden xl:table-column"
+                  style={{ width: "15%" }}
+                />
+              </colgroup>
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              {isLoading ? (
+                <TableBodySkeleton />
+              ) : table.getRowCount() === 0 ? (
+                <tbody>
+                  <tr>
+                    <td colSpan={4}>
+                      <div className="text-center m-6 w-full">
+                        No countries found
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              ) : (
                 <tbody>
                   {virtualizer.getVirtualItems().map((virtualRow, index) => {
                     const row = table.getRowModel().rows[virtualRow.index];
@@ -129,8 +135,8 @@ function CountryTable() {
                     );
                   })}
                 </tbody>
-              </table>
-            )}
+              )}
+            </table>
           </div>
         </div>
       </div>

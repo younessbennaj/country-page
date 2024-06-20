@@ -1,5 +1,6 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { useCountriesByCode } from "../queries/useCountryByCode";
+import { useEffect } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loader({ params }: any) {
@@ -12,12 +13,18 @@ function numberWithCommas(x: number) {
 }
 
 function Country() {
+  const navigate = useNavigate();
   const { countryId } = useLoaderData() as { countryId: string };
   const { data: countries, isLoading } = useCountriesByCode(countryId);
 
-  const country = countries?.[0];
+  useEffect(() => {
+    window.onpopstate = () => {
+      // pass country id to previous page
+      navigate("/", { state: { previouslyVisitedCountryPageId: countryId } });
+    };
+  }, []);
 
-  console.log("country", country);
+  const country = countries?.[0];
 
   const currencies = country
     ? Object.values(

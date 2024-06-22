@@ -13,6 +13,7 @@ let _kSavedOffset = 0;
 let _kMeasurementsCache = [] as VirtualItem[];
 
 function CountryTable() {
+  console.log("CountryTable rendered");
   const { data: countries, isLoading } = useCountriesQuery();
 
   const location = useLocation();
@@ -33,6 +34,7 @@ function CountryTable() {
     table,
     filtering,
     setFiltering,
+    sorting,
   } = useCountryTable(countries);
 
   const { rows } = table.getRowModel();
@@ -75,6 +77,7 @@ function CountryTable() {
             setIsUnMember={setIsUnMember}
             setRegions={setRegions}
             setSorting={setSorting}
+            sorting={sorting}
           />
         </div>
         <div ref={parentRef} className="grow h-[600px] overflow-auto">

@@ -153,5 +153,6 @@ export function useCountryTable(countries: Country[] | null) {
     setIsUnMember,
     filtering,
     setFiltering,
+    sorting,
   };
 }

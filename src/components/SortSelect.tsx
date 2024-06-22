@@ -3,8 +3,10 @@ import { SortBy } from "../types";
 import Select from "./Select";
 
 function SortSelect({
+  sorting,
   setSorting,
 }: {
+  sorting: SortingState;
   setSorting: (sorting: SortingState) => void;
 }) {
   function handleSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -18,7 +20,7 @@ function SortSelect({
     setSorting(newSorting);
   }
   return (
-    <Select onChange={handleSelectChange}>
+    <Select onChange={handleSelectChange} value={sorting[0].id as SortBy}>
       <option value="population">Population</option>
       <option value="name">Name</option>
       <option value="area">Area</option>

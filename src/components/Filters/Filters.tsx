@@ -12,6 +12,7 @@ export function Filters({
   setIsUnMember,
   setRegions,
   setSorting,
+  sorting,
 }: {
   isIndependent: boolean;
   isUnMember: boolean;
@@ -20,11 +21,12 @@ export function Filters({
   setIsUnMember: (isUnMember: boolean) => void;
   setRegions: (regions: Region[]) => void;
   setSorting: (sorting: SortingState) => void;
+  sorting: SortingState;
 }) {
   return (
     <div className="filters mb-6">
       <div>
-        <SortSelect setSorting={setSorting} />
+        <SortSelect sorting={sorting} setSorting={setSorting} />
       </div>
       <div>
         <RegionFilter regions={regions} setRegions={setRegions} />

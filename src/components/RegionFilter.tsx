@@ -51,6 +51,7 @@ function RegionFilter({
       <div className="flex flex-wrap gap-2">
         {checkboxOptions.map((option) => (
           <CheckboxButton
+            checked={regions.includes(option.value as Region)}
             key={option.id}
             label={option.label}
             id={option.id}

@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom";
 import TableBodySkeleton from "../TableBodySkeleton/TableBodySkeleton";
 
 let _kSavedOffset = 0;
-let _kMeasurementsCache = [] as VirtualItem[];
+let _kMeasurementsCache = [] as VirtualItem<Element>[];
 
 function CountryTable() {
   console.log("CountryTable rendered");
@@ -49,7 +49,7 @@ function CountryTable() {
     onChange: (virtualizer) => {
       if (!virtualizer.isScrolling) {
         _kMeasurementsCache = virtualizer.measurementsCache;
-        _kSavedOffset = virtualizer.scrollOffset;
+        _kSavedOffset = virtualizer.scrollOffset || 0;
       }
     },
   });

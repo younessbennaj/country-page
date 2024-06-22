@@ -13,7 +13,6 @@ let _kSavedOffset = 0;
 let _kMeasurementsCache = [] as VirtualItem<Element>[];
 
 function CountryTable() {
-  console.log("CountryTable rendered");
   const { data: countries, isLoading } = useCountriesQuery();
 
   const location = useLocation();

@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom";
 import TableBodySkeleton from "../TableBodySkeleton/TableBodySkeleton";
 
 let _kSavedOffset = 0;
-let _kMeasurementsCache = [] as VirtualItem[];
+let _kMeasurementsCache = [] as VirtualItem<Element>[];
 
 function CountryTable() {
   const { data: countries, isLoading } = useCountriesQuery();
@@ -33,6 +33,7 @@ function CountryTable() {
     table,
     filtering,
     setFiltering,
+    sorting,
   } = useCountryTable(countries);
 
   const { rows } = table.getRowModel();
@@ -47,7 +48,7 @@ function CountryTable() {
     onChange: (virtualizer) => {
       if (!virtualizer.isScrolling) {
         _kMeasurementsCache = virtualizer.measurementsCache;
-        _kSavedOffset = virtualizer.scrollOffset;
+        _kSavedOffset = virtualizer.scrollOffset || 0;
       }
     },
   });
@@ -75,6 +76,7 @@ function CountryTable() {
             setIsUnMember={setIsUnMember}
             setRegions={setRegions}
             setSorting={setSorting}
+            sorting={sorting}
           />
         </div>
         <div ref={parentRef} className="grow h-[600px] overflow-auto">

@@ -6,7 +6,6 @@ import { useCountriesQuery } from "../../queries/useCountriesQuery";
 import React from "react";
 import { useVirtualizer, VirtualItem } from "@tanstack/react-virtual";
 import CountryTableRow from "../CountryTableRow/CountryTableRow";
-import { useLocation } from "react-router-dom";
 import TableBodySkeleton from "../TableBodySkeleton/TableBodySkeleton";
 
 let _kSavedOffset = 0;
@@ -14,11 +13,6 @@ let _kMeasurementsCache = [] as VirtualItem<Element>[];
 
 function CountryTable() {
   const { data: countries, isLoading } = useCountriesQuery();
-
-  const location = useLocation();
-
-  let previouslyVisitedCountryPageId =
-    location.state?.previouslyVisitedCountryPageId;
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
@@ -128,9 +122,6 @@ function CountryTable() {
                       <CountryTableRow
                         key={row.id}
                         index={index}
-                        isFocused={
-                          previouslyVisitedCountryPageId === row.original.ccn3
-                        }
                         row={row}
                         virtualRow={virtualRow}
                       />

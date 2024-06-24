@@ -3,36 +3,39 @@ import { useNavigate } from "react-router-dom";
 import { CountryTableRowProps } from "./types";
 import { useEffect } from "react";
 import React from "react";
+import { useSessionStorage } from "@uidotdev/usehooks";
 
-function CountryTableRow({
-  index,
-  row,
-  virtualRow,
-  isFocused,
-}: CountryTableRowProps) {
+function CountryTableRow({ index, row, virtualRow }: CountryTableRowProps) {
   const navigate = useNavigate();
+  const [previouslyVisitedCountryPageId, setPreviouslyVisitedCountryPageId] =
+    useSessionStorage("previouslyVisitedCountryPageId", "");
 
   const rowRef = React.useRef<HTMLTableRowElement>(null);
+
+  function goToCountryPage(countryId: string) {
+    setPreviouslyVisitedCountryPageId(countryId);
+    navigate(`/countries/${countryId}`);
+  }
 
   function handleRowKeyPress(
     event: React.KeyboardEvent<HTMLTableRowElement>,
     countryId: string
   ) {
     if (event.key === "Enter" || event.key === " ") {
-      navigate(`/countries/${countryId}`);
+      goToCountryPage(countryId);
     }
   }
 
   function handleRowClick(countryId: string) {
-    navigate(`/countries/${countryId}`);
+    goToCountryPage(countryId);
   }
 
   // Keep a reference to the row element and focus it when it is focused
   useEffect(() => {
-    if (isFocused) {
+    if (previouslyVisitedCountryPageId === row.original.ccn3) {
       rowRef.current?.focus();
     }
-  }, [isFocused]);
+  }, [previouslyVisitedCountryPageId]);
 
   return (
     <tr

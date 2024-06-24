@@ -1,8 +1,8 @@
-import { Link, useLoaderData, useNavigate } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { useCountriesByCode } from "../queries/useCountryByCode";
-import { useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import { useBorderCountriesByCode } from "../queries/useCountriesQuery";
+import { useEffect } from "react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loader({ params }: any) {
@@ -15,31 +15,20 @@ function numberWithCommas(x: number) {
 }
 
 function Country() {
-  const navigate = useNavigate();
   const { countryId } = useLoaderData() as { countryId: string };
   const { data: countries, isLoading } = useCountriesByCode(countryId);
 
-  const borders = countries ? countries[0]?.borders : [];
+  const borders =
+    countries && countries[0]?.borders ? countries[0]?.borders : [];
 
   const { data: borderCountries } = useBorderCountriesByCode(
     borders,
     countryId
   );
 
-  // to refactor (use session storage instead)
   useEffect(() => {
-    function hanlePopState() {
-      navigate("/", {
-        state: { previouslyVisitedCountryPageId: countryId },
-      });
-    }
-
-    window.addEventListener("popstate", hanlePopState);
-
-    () => {
-      window.removeEventListener("popstate", hanlePopState);
-    };
-  }, []);
+    window.scrollTo(0, 0);
+  }, [countryId]);
 
   const country = countries?.[0];
 
@@ -145,42 +134,43 @@ function Country() {
             </div>
           ))}
         </div>
+        {borderCountries && (
+          <div className="w-full p-5">
+            <span className="text-light-grey text-sm mb-4 block">
+              Neighbouring Countries
+            </span>
+            <div className="flex gap-4 flex-wrap">
+              {borderCountries?.map(
+                ({
+                  ccn3,
+                  name: { common },
+                  flags: { svg },
+                }: {
+                  ccn3: string;
+                  name: { common: string };
+                  flags: { svg: string };
+                }) => (
+                  <div key={ccn3}>
+                    <Link
+                      preventScrollReset={true}
+                      to={`/countries/${ccn3}`}
+                      replace={false}
+                    >
+                      <img
+                        key={common}
+                        className="w-[80px] h-[60px] object-cover"
+                        src={svg}
+                        alt={`Flag of ${common}`}
+                      />
+                    </Link>
 
-        <div className="w-full p-5">
-          <span className="text-light-grey text-sm mb-4 block">
-            Neighbouring Countries
-          </span>
-          <div className="flex gap-4 flex-wrap">
-            {borderCountries?.map(
-              ({
-                ccn3,
-                name: { common },
-                flags: { svg },
-              }: {
-                ccn3: string;
-                name: { common: string };
-                flags: { svg: string };
-              }) => (
-                <div>
-                  <Link
-                    preventScrollReset={true}
-                    to={`/countries/${ccn3}`}
-                    replace={false}
-                  >
-                    <img
-                      key={common}
-                      className="w-[80px] h-[60px] object-cover"
-                      src={svg}
-                      alt={`Flag of ${common}`}
-                    />
-                  </Link>
-
-                  <span className="text-blue-grey text-xs">{common}</span>
-                </div>
-              )
-            )}
+                    <span className="text-blue-grey text-xs">{common}</span>
+                  </div>
+                )
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

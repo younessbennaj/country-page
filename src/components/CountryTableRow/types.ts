@@ -4,7 +4,6 @@ import { VirtualItem } from "@tanstack/react-virtual";
 
 export type CountryTableRowProps = {
   row: Row<Country>;
-  virtualRow: VirtualItem;
+  virtualRow: VirtualItem<Element>;
   index: number;
-  isFocused: boolean;
 };

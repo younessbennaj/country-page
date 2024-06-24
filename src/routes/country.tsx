@@ -1,6 +1,8 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import { useCountriesByCode } from "../queries/useCountryByCode";
 import { useEffect } from "react";
+import Layout from "../components/Layout/Layout";
+import { useBorderCountriesByCode } from "../queries/useCountriesQuery";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function loader({ params }: any) {
@@ -17,10 +19,25 @@ function Country() {
   const { countryId } = useLoaderData() as { countryId: string };
   const { data: countries, isLoading } = useCountriesByCode(countryId);
 
+  const borders = countries ? countries[0]?.borders : [];
+
+  const { data: borderCountries } = useBorderCountriesByCode(
+    borders,
+    countryId
+  );
+
+  // to refactor (use session storage instead)
   useEffect(() => {
-    window.onpopstate = () => {
-      // pass country id to previous page
-      navigate("/", { state: { previouslyVisitedCountryPageId: countryId } });
+    function hanlePopState() {
+      navigate("/", {
+        state: { previouslyVisitedCountryPageId: countryId },
+      });
+    }
+
+    window.addEventListener("popstate", hanlePopState);
+
+    () => {
+      window.removeEventListener("popstate", hanlePopState);
     };
   }, []);
 
@@ -56,8 +73,8 @@ function Country() {
   ];
 
   return (
-    <div>
-      <div className="flex flex-col items-center pt-10 lg:max-w-[720px] my-0 mx-auto lg:rounded-xl lg:border lg:border-dark lg:shadow-2xl">
+    <Layout>
+      <div className="flex flex-col items-center pt-10 lg:max-w-[720px] my-0 mx-auto lg:rounded-xl lg:border lg:border-dark lg:shadow-2xl bg-custom-black">
         {isLoading ? (
           <div className="animate-pulse">
             <div className="h-[196px] w-[260px] bg-gray-400 rounded mb-8"></div>
@@ -128,8 +145,44 @@ function Country() {
             </div>
           ))}
         </div>
+
+        <div className="w-full p-5">
+          <span className="text-light-grey text-sm mb-4 block">
+            Neighbouring Countries
+          </span>
+          <div className="flex gap-4 flex-wrap">
+            {borderCountries?.map(
+              ({
+                ccn3,
+                name: { common },
+                flags: { svg },
+              }: {
+                ccn3: string;
+                name: { common: string };
+                flags: { svg: string };
+              }) => (
+                <div>
+                  <Link
+                    preventScrollReset={true}
+                    to={`/countries/${ccn3}`}
+                    replace={false}
+                  >
+                    <img
+                      key={common}
+                      className="w-[80px] h-[60px] object-cover"
+                      src={svg}
+                      alt={`Flag of ${common}`}
+                    />
+                  </Link>
+
+                  <span className="text-blue-grey text-xs">{common}</span>
+                </div>
+              )
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

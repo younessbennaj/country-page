@@ -54,7 +54,7 @@ function CountryTable() {
   });
 
   return (
-    <>
+    <div className="items-center py-8 px-6 my-0 mx-auto lg:rounded-xl lg:border lg:border-dark lg:shadow-2xl bg-custom-black">
       <div className="mb-9 flex items-center justify-between">
         <h2 className="font-semibold text-base text-light-grey">
           Found {table.getRowCount()} countries
@@ -79,7 +79,7 @@ function CountryTable() {
             sorting={sorting}
           />
         </div>
-        <div ref={parentRef} className="grow h-[600px] overflow-auto">
+        <div ref={parentRef} className="grow h-[650px] overflow-auto">
           <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
             <table>
               <colgroup>
@@ -142,7 +142,7 @@ function CountryTable() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
